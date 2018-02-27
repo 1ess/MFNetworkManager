@@ -8,12 +8,13 @@
 #import <Foundation/Foundation.h>
 #import <AFNetworking/AFNetworking.h>
 #define MFNETWROK [MFNetworkManager shareInstance]
-typedef void (^MFNetworkSuccessHandle) (id result, NSURLSessionDataTask *task);
-typedef void (^MFNetworkFailureHandle) (NSError *error, NSURLSessionDataTask *task);
+typedef void (^MFDownloadSuccessHandle) (NSString *filePath, NSInteger statusCode);
+typedef void (^MFNetworkSuccessHandle) (id result, NSInteger statusCode, NSURLSessionDataTask *task);
+typedef void (^MFNetworkFailureHandle) (NSError *error, NSInteger statusCode, NSURLSessionDataTask *task);
 typedef void (^MFProgress) (NSProgress *progress);
 
-typedef void (^MFNotReachable) (NSString *string);
-typedef void (^MFCanReachable) (NSString *string);
+typedef void (^MFNotReachable) (NSString *state);
+typedef void (^MFCanReachable) (NSString *state);
 
 typedef NS_ENUM(NSInteger, MFResponseType) {
     MFResponseTypeJSON,
@@ -110,7 +111,7 @@ typedef NS_ENUM(NSInteger, MFRequestType) {
 - (NSURLSessionDownloadTask *)download:(NSString *)url
                                fileDir:(NSString *)fileDir
                               progress:(MFProgress)progress
-                               success:(void(^)(NSString *))success
+                               success:(MFDownloadSuccessHandle)success
                                failure:(MFNetworkFailureHandle)failure;
 @end
 

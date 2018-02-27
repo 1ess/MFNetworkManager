@@ -10,6 +10,7 @@
 #import <AFNetworking/AFNetworkActivityIndicatorManager.h>
 @interface MFNetworkManager()
 @property (nonatomic, strong) AFHTTPSessionManager *sessionManager;
+
 @property (nonatomic, strong) AFJSONResponseSerializer *jsonResponseSerializer;
 @property (nonatomic, strong) AFHTTPResponseSerializer *httpResponseSerializer;
 @property (nonatomic, strong) AFHTTPRequestSerializer *httpRequestSerializer;
@@ -93,24 +94,21 @@
     [appendParams addEntriesFromDictionary:params];
     NSURLSessionDataTask *dataTask = [self.sessionManager GET:url parameters:appendParams progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
         if (success) {
-            success(responseObject, task);
+            success(responseObject, statusCode, task);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
         if (failure) {
-            failure(error, task);
+            failure(error, statusCode, task);
         }
     }];
     dataTask ? [self.allSessionTask addObject:dataTask] : nil;
-    if (self.requestType != MFRequestTypeHTTP) {
-        self.requestType = MFRequestTypeHTTP;
-    }
-    if (self.responseType != MFResponseTypeJSON) {
-        self.responseType = MFResponseTypeJSON;
-    }
+    [self resetType];
     return dataTask;
 }
 
@@ -129,24 +127,21 @@
     [appendParams addEntriesFromDictionary:params];
     NSURLSessionDataTask *dataTask = [self.sessionManager POST:url parameters:appendParams progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
         if (success) {
-            success(responseObject, task);
+            success(responseObject, statusCode, task);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
         if (failure) {
-            failure(error, task);
+            failure(error, statusCode, task);
         }
     }];
     dataTask ? [self.allSessionTask addObject:dataTask] : nil;
-    if (self.requestType != MFRequestTypeHTTP) {
-        self.requestType = MFRequestTypeHTTP;
-    }
-    if (self.responseType != MFResponseTypeJSON) {
-        self.responseType = MFResponseTypeJSON;
-    }
+    [self resetType];
     return dataTask;
 }
 
@@ -189,24 +184,21 @@
         });
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
         if (success) {
-            success(responseObject, task);
+            success(responseObject, statusCode, task);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
         if (failure) {
-            failure(error, task);
+            failure(error, statusCode, task);
         }
     }];
     dataTask ? [self.allSessionTask addObject:dataTask] : nil;
-    if (self.requestType != MFRequestTypeHTTP) {
-        self.requestType = MFRequestTypeHTTP;
-    }
-    if (self.responseType != MFResponseTypeJSON) {
-        self.responseType = MFResponseTypeJSON;
-    }
+    [self resetType];
     return dataTask;
     
 }
@@ -214,7 +206,7 @@
 - (NSURLSessionDownloadTask *)download:(NSString *)url
                                fileDir:(NSString *)fileDir
                               progress:(MFProgress)progress
-                               success:(void(^)(NSString *))success
+                               success:(MFDownloadSuccessHandle)success
                                failure:(MFNetworkFailureHandle)failure {
     [self openNetworkActivityIndicator:YES];
     if (self.commonHeaderFields) {
@@ -238,26 +230,38 @@
         return [NSURL fileURLWithPath:filePath];
     } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
         [self.allSessionTask removeObject:downloadTask];
+        NSInteger statusCode = [self getStatusCodeWithTask:downloadTask];
         [self openNetworkActivityIndicator:NO];
         if (error && failure) {
-            failure(error, nil);
+            failure(error, statusCode, nil);
             return ;
         }
         
         if (success) {
-            success(filePath.path);
+            success(filePath.path, statusCode);
         }
         
     }];
     [downloadTask resume];
     downloadTask ? [self.allSessionTask addObject:downloadTask] : nil;
-    if (self.requestType != MFRequestTypeHTTP) {
+    [self resetType];
+    return downloadTask;
+}
+
+- (NSInteger)getStatusCodeWithTask:(NSURLSessionTask *)task {
+    NSURLResponse *response = [task response];
+    NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
+    NSInteger statusCode = [HTTPResponse statusCode];
+    return statusCode;
+}
+
+- (void)resetType {
+    if (self.requestType) {
         self.requestType = MFRequestTypeHTTP;
     }
-    if (self.responseType != MFResponseTypeJSON) {
+    if (self.responseType) {
         self.responseType = MFResponseTypeJSON;
     }
-    return downloadTask;
 }
 
 - (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval {
