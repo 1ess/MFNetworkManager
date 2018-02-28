@@ -29,6 +29,12 @@ typedef NS_ENUM(NSInteger, MFRequestType) {
 @interface MFNetworkManager : NSObject
 
 /**
+ 统一管理baseURL
+ */
+
+@property (nonatomic, strong) NSString *baseURL;
+
+/**
  公共headerField
  */
 @property (nonatomic, strong) NSDictionary *commonHeaderFields;

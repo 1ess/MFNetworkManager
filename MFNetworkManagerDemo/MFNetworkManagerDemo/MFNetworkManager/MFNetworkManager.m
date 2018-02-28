@@ -92,7 +92,9 @@
         [appendParams addEntriesFromDictionary:self.commonParams];
     }
     [appendParams addEntriesFromDictionary:params];
-    NSURLSessionDataTask *dataTask = [self.sessionManager GET:url parameters:appendParams progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSString *urlInfo = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
+    
+    NSURLSessionDataTask *dataTask = [self.sessionManager GET:urlInfo parameters:appendParams progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
         NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
@@ -125,7 +127,8 @@
         [appendParams addEntriesFromDictionary:self.commonParams];
     }
     [appendParams addEntriesFromDictionary:params];
-    NSURLSessionDataTask *dataTask = [self.sessionManager POST:url parameters:appendParams progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSString *urlInfo = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
+    NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlInfo parameters:appendParams progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
         NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
@@ -163,7 +166,8 @@
         [appendParams addEntriesFromDictionary:self.commonParams];
     }
     [appendParams addEntriesFromDictionary:params];
-    NSURLSessionDataTask *dataTask = [self.sessionManager POST:url parameters:appendParams constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+    NSString *urlInfo = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
+    NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlInfo parameters:appendParams constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         for (NSUInteger i = 0; i < images.count; i++) {
             // 图片经过等比压缩后得到的二进制文件
             NSData *imageData = UIImageJPEGRepresentation(images[i], imageScale);
@@ -212,7 +216,8 @@
     if (self.commonHeaderFields) {
         [self addHeaderFieldWithDictionary:self.commonHeaderFields];
     }
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+    NSString *urlInfo = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlInfo]];
     __block NSURLSessionDownloadTask *downloadTask = [self.sessionManager downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
         dispatch_async(dispatch_get_main_queue(), ^{
             progress(downloadProgress);
