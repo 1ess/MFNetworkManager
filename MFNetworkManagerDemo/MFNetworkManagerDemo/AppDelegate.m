@@ -10,7 +10,9 @@
 #import "MFNetworkManager.h"
 #import <MFHUDManager/MFHUDManager.h>
 @interface AppDelegate ()
-
+<
+MFNetworkManagerDelegate
+>
 @end
 
 @implementation AppDelegate
@@ -21,17 +23,18 @@
     
     //全局监控
     [MFNETWROK startMonitorNetworkType];
-    MFNETWROK.notReachable = ^(NSString *string) {
-        [MFHUDManager showError:string];
-    };
-    
-    MFNETWROK.canReachable = ^(NSString *string) {
-        [MFHUDManager showWarning:string];
-    };
+    MFNETWROK.delegate = self;
     
     return YES;
 }
 
+- (void)networkManager:(MFNetworkManager *)manager didConnectedWithPrompt:(NSString *)prompt {
+    [MFHUDManager showWarning:prompt];
+}
+
+- (void)networkManager:(MFNetworkManager *)manager disDisConnectedWithPrompt:(NSString *)prompt {
+    [MFHUDManager showError:prompt];
+}
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

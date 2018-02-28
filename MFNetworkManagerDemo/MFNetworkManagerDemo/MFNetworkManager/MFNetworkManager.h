@@ -13,9 +13,6 @@ typedef void (^MFNetworkSuccessHandle) (id result, NSInteger statusCode, NSURLSe
 typedef void (^MFNetworkFailureHandle) (NSError *error, NSInteger statusCode, NSURLSessionDataTask *task);
 typedef void (^MFProgress) (NSProgress *progress);
 
-typedef void (^MFNotReachable) (NSString *state);
-typedef void (^MFCanReachable) (NSString *state);
-
 typedef NS_ENUM(NSInteger, MFResponseType) {
     MFResponseTypeJSON,
     MFResponseTypeHTTP
@@ -25,8 +22,20 @@ typedef NS_ENUM(NSInteger, MFRequestType) {
     MFRequestTypeHTTP,
     MFRequestTypeJSON
 };
+@class MFNetworkManager;
+@protocol MFNetworkManagerDelegate<NSObject>
+@optional
+- (void)networkManager:(MFNetworkManager *)manager didConnectedWithPrompt:(NSString *)prompt;
+- (void)networkManager:(MFNetworkManager *)manager disDisConnectedWithPrompt:(NSString *)prompt;
+
+@end
 
 @interface MFNetworkManager : NSObject
+
+/**
+ delegate  处理网络连接的两种情况
+ */
+@property (nonatomic, weak) id<MFNetworkManagerDelegate> delegate;
 
 /**
  统一管理baseURL
@@ -58,13 +67,6 @@ typedef NS_ENUM(NSInteger, MFRequestType) {
  响应序列化类型 默认：MFResponseTypeJSON 单一请求属性
 */
 @property (nonatomic, assign) MFResponseType responseType;
-
-
-/**
- 全局处理网络连接的两种情况， 通常用HUD展示给用户（推荐MFHUDManager）
- */
-@property (nonatomic, copy) MFNotReachable notReachable;
-@property (nonatomic, copy) MFCanReachable canReachable;
 
 /**
  Create manager
@@ -120,4 +122,5 @@ typedef NS_ENUM(NSInteger, MFRequestType) {
                                success:(MFDownloadSuccessHandle)success
                                failure:(MFNetworkFailureHandle)failure;
 @end
+
 

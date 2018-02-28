@@ -333,19 +333,19 @@
 - (void)reachabilityChanged:(NSNotification *)notification {
     RealReachability *reachability = (RealReachability *)notification.object;
     ReachabilityStatus status = [reachability currentReachabilityStatus];
-    NSString *state;
+    NSString *prompt;
     BOOL isReachable = YES;
     BOOL isNeeNotice = YES;
     switch (status) {
         case RealStatusNotReachable:
         {
-            state = @"网络已断开";
+            prompt = @"网络已断开";
             isReachable = NO;
         }
             break;
         case RealStatusViaWiFi:
         {
-            state = @"已切换到 WIFI";
+            prompt = @"已切换到 WIFI";
         }
             break;
         case RealStatusViaWWAN:
@@ -353,15 +353,15 @@
             WWANAccessType accessType = [GLobalRealReachability currentWWANtype];
             if (accessType == WWANType2G)
             {
-                state = @"已切换到 2G";
+                prompt = @"已切换到 2G";
             }
             else if (accessType == WWANType3G)
             {
-                state = @"已切换到 3G";
+                prompt = @"已切换到 3G";
             }
             else if (accessType == WWANType4G)
             {
-                state = @"已切换到 4G";
+                prompt = @"已切换到 4G";
             }
         }
             break;
@@ -374,9 +374,13 @@
     
     if (isNeeNotice) {
         if (isReachable) {
-            self.canReachable(state);
+            if ([self.delegate respondsToSelector:@selector(networkManager:didConnectedWithPrompt:)]) {
+                [self.delegate networkManager:self didConnectedWithPrompt:prompt];
+            }
         }else {
-            self.notReachable(state);
+            if ([self.delegate respondsToSelector:@selector(networkManager:disDisConnectedWithPrompt:)]) {
+                [self.delegate networkManager:self disDisConnectedWithPrompt:prompt];
+            }
         }
     }
 }
