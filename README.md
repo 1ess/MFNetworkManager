@@ -25,13 +25,6 @@ pod 'MFNetworkManager'
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     //全局监控
     [MFNETWROK startMonitorNetworkType];
-    MFNETWROK.notReachable = ^(NSString *string) {
-    [MFHUDManager showError:string];
-    };
-
-    MFNETWROK.canReachable = ^(NSString *string) {
-    [MFHUDManager showWarning:string];
-    };
 }
 ```
 
@@ -58,6 +51,11 @@ pod 'MFNetworkManager'
 - 其他配置
 ```
 /**
+delegate  处理网络连接的两种情况
+*/
+@property (nonatomic, weak) id<MFNetworkManagerDelegate> delegate;
+
+/**
 公共headerField
 */
 @property (nonatomic, strong) NSDictionary *commonHeaderFields;
@@ -82,6 +80,12 @@ pod 'MFNetworkManager'
 */
 @property (nonatomic, assign) MFResponseType responseType;
 
+```
+
+- 处理网络连接的两种情况的代理方法
+```
+- (void)networkManager:(MFNetworkManager *)manager didConnectedWithPrompt:(NSString *)prompt;
+- (void)networkManager:(MFNetworkManager *)manager disDisConnectedWithPrompt:(NSString *)prompt;
 ```
 
 ## License
