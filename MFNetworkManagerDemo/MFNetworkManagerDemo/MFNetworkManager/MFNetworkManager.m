@@ -92,6 +92,7 @@
         [appendParams addEntriesFromDictionary:self.commonParams];
     }
     [appendParams addEntriesFromDictionary:params];
+    url = [url stringByRemovingPercentEncoding];
     NSString *urlInfo = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
     
     NSURLSessionDataTask *dataTask = [self.sessionManager GET:urlInfo parameters:appendParams progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -127,6 +128,7 @@
         [appendParams addEntriesFromDictionary:self.commonParams];
     }
     [appendParams addEntriesFromDictionary:params];
+    url = [url stringByRemovingPercentEncoding];
     NSString *urlInfo = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
     NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlInfo parameters:appendParams progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
@@ -166,6 +168,7 @@
         [appendParams addEntriesFromDictionary:self.commonParams];
     }
     [appendParams addEntriesFromDictionary:params];
+    url = [url stringByRemovingPercentEncoding];
     NSString *urlInfo = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
     NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlInfo parameters:appendParams constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         for (NSUInteger i = 0; i < images.count; i++) {
@@ -216,6 +219,7 @@
     if (self.commonHeaderFields) {
         [self addHeaderFieldWithDictionary:self.commonHeaderFields];
     }
+    url = [url stringByRemovingPercentEncoding];
     NSString *urlInfo = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlInfo]];
     __block NSURLSessionDownloadTask *downloadTask = [self.sessionManager downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {

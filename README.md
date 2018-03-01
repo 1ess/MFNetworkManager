@@ -28,6 +28,13 @@ pod 'MFNetworkManager'
 }
 ```
 
+
+- 处理网络连接的两种情况的代理方法([推荐使用MFHUDManager](https://github.com/GodzzZZZ/MFHUDManager))
+```
+- (void)networkManager:(MFNetworkManager *)manager didConnectedWithPrompt:(NSString *)prompt;
+- (void)networkManager:(MFNetworkManager *)manager disDisConnectedWithPrompt:(NSString *)prompt;
+```
+
 - 调用MFNETWORK的 get，post，upload，download方法即可
 ```
 //get
@@ -56,12 +63,18 @@ delegate  处理网络连接的两种情况
 @property (nonatomic, weak) id<MFNetworkManagerDelegate> delegate;
 
 /**
+统一管理baseURL
+*/
+
+@property (nonatomic, strong) NSString *baseURL;
+
+/**
 公共headerField
 */
 @property (nonatomic, strong) NSDictionary *commonHeaderFields;
 
 /**
-公共参数
+公共params
 */
 @property (nonatomic, strong) NSDictionary *commonParams;
 
@@ -71,21 +84,15 @@ delegate  处理网络连接的两种情况
 @property (nonatomic, assign) NSTimeInterval requestTimeoutInterval;
 
 /**
-请求序列化类型 默认：MFRequestTypeHTTP 单一请求属性
+请求序列化类型  单一请求属性
 */
 @property (nonatomic, assign) MFRequestType requestType;
 
 /**
-响应序列化类型 默认：MFResponseTypeJSON 单一请求属性
+响应序列化类型  单一请求属性
 */
 @property (nonatomic, assign) MFResponseType responseType;
 
-```
-
-- 处理网络连接的两种情况的代理方法
-```
-- (void)networkManager:(MFNetworkManager *)manager didConnectedWithPrompt:(NSString *)prompt;
-- (void)networkManager:(MFNetworkManager *)manager disDisConnectedWithPrompt:(NSString *)prompt;
 ```
 
 ## License
