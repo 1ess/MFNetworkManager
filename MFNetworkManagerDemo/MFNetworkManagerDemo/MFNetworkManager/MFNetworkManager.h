@@ -13,14 +13,14 @@ typedef void (^MFNetworkSuccessHandle) (id result, NSInteger statusCode, NSURLSe
 typedef void (^MFNetworkFailureHandle) (NSError *error, NSInteger statusCode, NSURLSessionDataTask *task);
 typedef void (^MFProgress) (NSProgress *progress);
 
-typedef NS_ENUM(NSInteger, MFResponseType) {
-    MFResponseTypeJSON,
-    MFResponseTypeHTTP
+typedef NS_ENUM(NSInteger, MFResponseSerialization) {
+    MFJSONResponseSerialization,
+    MFHTTPResponseSerialization
 };
 
-typedef NS_ENUM(NSInteger, MFRequestType) {
-    MFRequestTypeHTTP,
-    MFRequestTypeJSON
+typedef NS_ENUM(NSInteger, MFRequestSerialization) {
+    MFHTTPRequestSerialization,
+    MFJSONRequestSerialization
 };
 @class MFNetworkManager;
 @protocol MFNetworkManagerDelegate<NSObject>
@@ -33,40 +33,45 @@ typedef NS_ENUM(NSInteger, MFRequestType) {
 @interface MFNetworkManager : NSObject
 
 /**
- delegate  处理网络连接的两种情况
+ delegate
  */
 @property (nonatomic, weak) id<MFNetworkManagerDelegate> delegate;
 
 /**
- 统一管理baseURL
+ baseURL
  */
 
 @property (nonatomic, strong) NSString *baseURL;
 
 /**
- 公共headerField
- */
-@property (nonatomic, strong) NSDictionary *commonHeaderFields;
-
-/**
- 公共参数
- */
-@property (nonatomic, strong) NSDictionary *commonParams;
-
-/**
- 超时时间 默认：30s 全局属性
+ timeoutInterval   30 default
  */
 @property (nonatomic, assign) NSTimeInterval requestTimeoutInterval;
 
-/**
- 请求序列化类型 默认：MFRequestTypeHTTP 单一请求属性
- */
-@property (nonatomic, assign) MFRequestType requestType;
 
 /**
- 响应序列化类型 默认：MFResponseTypeJSON 单一请求属性
+ sets the common parameter of the HTTP client. if value is `nil`, removes the existing value which associated to the field.
+ @param value - the value of the parameter
+ @param field - the parameter, or `nil`
+ */
+- (void)setValue:(id)value forParameterField:(NSString *)field;
+/**
+ sets the common headerField of the HTTP client. if value is `nil`, removes the existing value which associated to the field.
+ @param value - the value of the HTTP header
+ @param field - the HTTP header, or `nil`
+ */
+- (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field;
+
+
+/**
+ request serialization    MFHTTPRequestSerialization default
+ */
+@property (nonatomic, assign) MFRequestSerialization requestSerialization;
+
+/**
+ response serialization    MFJSONResponseSerialization default
 */
-@property (nonatomic, assign) MFResponseType responseType;
+@property (nonatomic, assign) MFResponseSerialization responseSerialization;
 
 /**
  Create manager
@@ -87,10 +92,10 @@ typedef NS_ENUM(NSInteger, MFRequestType) {
  */
 - (BOOL)isWIFI;
 
-//打开请求网络状态指示器
+//network indicator state
 - (void)openNetworkActivityIndicator:(BOOL)open;
 
-//cancel
+//cancel request
 - (void)cancelAllRequest;
 
 - (void)cancelRequestWithURL:(NSString *)url;
@@ -105,16 +110,24 @@ typedef NS_ENUM(NSInteger, MFRequestType) {
                         params:(id)params
                        success:(MFNetworkSuccessHandle)success
                        failure:(MFNetworkFailureHandle)failure;
-//upload
+//upload with images
 - (NSURLSessionDataTask *)upload:(NSString *)url
                           params:(id)params
                             name:(NSString *)name
                           images:(NSArray<UIImage *> *)images
                       imageScale:(CGFloat)imageScale
-                       imageType:(NSString *)imageType
                         progress:(MFProgress)progress
                          success:(MFNetworkSuccessHandle)success
                          failure:(MFNetworkFailureHandle)failure;
+//upload with datas
+- (NSURLSessionDataTask *)upload:(NSString *)url
+                          params:(id)params
+                            name:(NSString *)name
+                      imageDatas:(NSArray<NSData *> *)imageDatas
+                        progress:(MFProgress)progress
+                         success:(MFNetworkSuccessHandle)success
+                         failure:(MFNetworkFailureHandle)failure;
+
 //download
 - (NSURLSessionDownloadTask *)download:(NSString *)url
                                fileDir:(NSString *)fileDir

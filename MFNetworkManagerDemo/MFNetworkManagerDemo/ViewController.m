@@ -53,12 +53,8 @@ UINavigationControllerDelegate
 }
 
 - (void)add:(UIBarButtonItem *)sender {
-    MFNETWROK.commonHeaderFields = @{
-                                     @"common_custom_header": @"common_custom_value"
-                                     };
-    MFNETWROK.commonParams = @{
-                               @"common_key": @"common_value"
-                               };
+    [MFNETWROK setValue:@"common_custom_value" forHTTPHeaderField:@"common_custom_header"];
+    [MFNETWROK setValue:@"common_value" forParameterField:@"common_key"];
 }
 
 

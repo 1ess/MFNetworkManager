@@ -65,7 +65,7 @@
                                                               });
                                                           }];
     }else if (self.type == 1) {
-        MFNETWROK.requestType = MFRequestTypeJSON;//观察比较注视这句时的content-Type
+        MFNETWROK.requestSerialization = MFJSONRequestSerialization;
         [MFNETWROK post:@"http://httpbin.org/post" params:@{
                                                             @"custom_param": @"mf_param"
                                                             } success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
