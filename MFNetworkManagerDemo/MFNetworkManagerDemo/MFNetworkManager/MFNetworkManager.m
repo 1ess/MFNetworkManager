@@ -8,15 +8,7 @@
 #import "MFNetworkManager.h"
 #import <RealReachability/RealReachability.h>
 #import <AFNetworking/AFNetworkActivityIndicatorManager.h>
-
-typedef NS_ENUM(NSInteger, MFImageType) {
-    MFImageTypeJPEG,
-    MFImageTypePNG,
-    MFImageTypeGIF,
-    MFImageTypeTIFF,
-    MFImageTypeUNKNOWN
-};
-
+#import "AnimatedGIFImageSerialization.h"
 @interface MFNetworkManager()
 @property (nonatomic, strong) AFHTTPSessionManager *sessionManager;
 
@@ -166,15 +158,21 @@ typedef NS_ENUM(NSInteger, MFImageType) {
                         name:(NSString *)name
                       images:(NSArray<UIImage *> *)images
                   imageScale:(CGFloat)imageScale
+                   imageType:(MFImageType)imageType
                     progress:(MFProgress)progress
                      success:(MFNetworkSuccessHandle)success
                      failure:(MFNetworkFailureHandle)failure {
     [self openNetworkActivityIndicator:YES];
     NSString *urlString = [self dealWithURL:url params:params];
     NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlString parameters:self.mutableParameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+        
         for (NSUInteger i = 0; i < images.count; i++) {
-            NSData *imageData = UIImageJPEGRepresentation(images[i], imageScale);
-            MFImageType imageType = [self typeForImageData:imageData];
+            NSData *imageData = nil;
+            if (imageType == MFImageTypeGIF) {
+                imageData = UIImageAnimatedGIFRepresentation(images[i]);
+            }else {
+                imageData = UIImageJPEGRepresentation(images[i], imageScale);
+            }
             NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
             formatter.dateFormat = @"yyyyMMddHHmmss";
             NSString *str = [formatter stringFromDate:[NSDate date]];

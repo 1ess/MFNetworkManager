@@ -22,6 +22,15 @@ typedef NS_ENUM(NSInteger, MFRequestSerialization) {
     MFHTTPRequestSerialization,
     MFJSONRequestSerialization
 };
+
+typedef NS_ENUM(NSInteger, MFImageType) {
+    MFImageTypeJPEG,
+    MFImageTypePNG,
+    MFImageTypeGIF,
+    MFImageTypeTIFF,
+    MFImageTypeUNKNOWN
+};
+
 @class MFNetworkManager;
 @protocol MFNetworkManagerDelegate<NSObject>
 @optional
@@ -116,6 +125,7 @@ typedef NS_ENUM(NSInteger, MFRequestSerialization) {
                             name:(NSString *)name
                           images:(NSArray<UIImage *> *)images
                       imageScale:(CGFloat)imageScale
+                       imageType:(MFImageType)imageType
                         progress:(MFProgress)progress
                          success:(MFNetworkSuccessHandle)success
                          failure:(MFNetworkFailureHandle)failure;

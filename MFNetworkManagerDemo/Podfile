@@ -9,4 +9,5 @@ target 'MFNetworkManagerDemo' do
 pod ‘AFNetworking’
 pod ‘RealReachability’
 pod ‘MFHUDManager’
+pod ‘YYWebImage’
 end

@@ -53,8 +53,8 @@ UINavigationControllerDelegate
 }
 
 - (void)add:(UIBarButtonItem *)sender {
-    [MFNETWROK setValue:@"common_custom_value" forHTTPHeaderField:@"common_custom_header"];
-    [MFNETWROK setValue:@"common_value" forParameterField:@"common_key"];
+    [MFNETWROK setValue:@"headerfield_value" forHTTPHeaderField:@"headerfield_key"];
+    [MFNETWROK setValue:@"commonparams_value" forParameterField:@"commonparams_key"];
 }
 
 
@@ -78,6 +78,10 @@ UINavigationControllerDelegate
     if (indexPath.row == 2) {
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self;
+        picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        picker.mediaTypes = @[
+                              (NSString *)kUTTypeImage
+                              ];
         [self presentViewController:picker animated:YES completion:nil];
     }else {
         [self.navigationController pushViewController:display animated:YES];
@@ -85,8 +89,27 @@ UINavigationControllerDelegate
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(nullable NSDictionary<NSString *,id> *)editingInfo{
+    
+}
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
     DisplayResultViewController *display = [[DisplayResultViewController alloc] init];
     display.type = 2;
+    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    if (@available(iOS 11.0, *)) {
+        NSString *url = [info objectForKey:UIImagePickerControllerImageURL];
+        if ([url.pathExtension isEqualToString:@"gif"]) {
+            display.imageType = MFImageTypeGIF;
+        }else if ([url.pathExtension isEqualToString:@"jpeg"]) {
+            display.imageType = MFImageTypeJPEG;
+        }else if ([url.pathExtension isEqualToString:@"png"]) {
+            display.imageType = MFImageTypePNG;
+        }else if ([url.pathExtension isEqualToString:@"tiff"]) {
+            display.imageType = MFImageTypeTIFF;
+        }else {
+            display.imageType = MFImageTypeUNKNOWN;
+        }
+    }
     display.imageList = [@[image] mutableCopy];
     [self dismissViewControllerAnimated:YES completion:^{
         [self.navigationController pushViewController:display animated:YES];

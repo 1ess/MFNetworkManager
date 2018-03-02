@@ -8,10 +8,11 @@
 
 #import "DisplayResultViewController.h"
 #import "MFNetworkManager.h"
+#import <YYImage.h>
 @interface DisplayResultViewController ()
 
 @property (nonatomic, strong) UITextView *textView;
-@property (nonatomic, strong) UIImageView *imageView;
+@property (nonatomic, strong) YYAnimatedImageView *imageView;
 @property (nonatomic, strong) UIProgressView *progressView;
 
 @end
@@ -27,7 +28,7 @@
     self.textView.textColor = [UIColor whiteColor];
     [self.view addSubview:self.textView];
     
-    self.imageView = [[UIImageView alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(self.textView.frame) + 10, self.view.bounds.size.width - 20, self.view.bounds.size.width - 20)];
+    self.imageView = [[YYAnimatedImageView alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(self.textView.frame) + 10, self.view.bounds.size.width - 20, self.view.bounds.size.width - 20)];
     self.imageView.backgroundColor = [UIColor colorWithRed:52/255.0 green:152/255.0 blue:219/255.0 alpha:1];
     [self.view addSubview:self.imageView];
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -52,7 +53,7 @@
 - (void)load {
     if (self.type == 0) {
         [MFNETWROK get:@"http://httpbin.org/get" params:@{
-                                                          @"custom_param": @"mf_param"
+                                                          @"params_key": @"params_value"
                                                           } success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
                                                               NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
                                                               NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -67,7 +68,7 @@
     }else if (self.type == 1) {
         MFNETWROK.requestSerialization = MFJSONRequestSerialization;
         [MFNETWROK post:@"http://httpbin.org/post" params:@{
-                                                            @"custom_param": @"mf_param"
+                                                            @"params_key": @"params_value"
                                                             } success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
                                                                 NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
                                                                 NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -82,8 +83,8 @@
 
     }else if (self.type == 2) {
         [MFNETWROK upload:@"http://httpbin.org/post" params:@{
-                                                              @"custom_param": @"mf_param"
-                                                              } name:@"name" images:self.imageList imageScale:0.1 imageType:@"png" progress:^(NSProgress *progress) {
+                                                              @"params_key": @"params_value"
+                                                              } name:@"name" images:self.imageList imageScale:0.1 imageType:self.imageType progress:^(NSProgress *progress) {
                                                                   NSLog(@"--%f",1.0 * progress.completedUnitCount / progress.totalUnitCount);
                                                               } success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
                                                                   NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
@@ -92,7 +93,7 @@
                                                                   NSData *base64Data = [[NSData alloc] initWithBase64EncodedString:base64 options:NSDataBase64DecodingIgnoreUnknownCharacters];
                                                                   dispatch_async(dispatch_get_main_queue(), ^{
                                                                       self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), str];
-                                                                      self.imageView.image = [UIImage imageWithData:base64Data];
+                                                                      self.imageView.image = [YYImage imageWithData:base64Data];
                                                                   });
                                                               } failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
                                                                   dispatch_async(dispatch_get_main_queue(), ^{
@@ -117,8 +118,6 @@
         }];
     }
 }
-
-
 
 
 @end

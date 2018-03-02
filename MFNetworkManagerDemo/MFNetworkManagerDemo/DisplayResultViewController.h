@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "MFNetworkManager.h"
 @interface DisplayResultViewController : UIViewController
 @property (nonatomic, assign) NSInteger type;
 @property (nonatomic, strong) NSMutableArray *imageList;
+@property (nonatomic, assign) MFImageType imageType;
 @end

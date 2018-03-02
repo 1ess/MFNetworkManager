@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5E2990C02048EF4E00E813CB /* AnimatedGIFImageSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 5E2990BF2048EF4E00E813CB /* AnimatedGIFImageSerialization.m */; };
 		5E9BC1112043CAFB0034C24E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5E9BC1102043CAFB0034C24E /* AppDelegate.m */; };
 		5E9BC1142043CAFB0034C24E /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5E9BC1132043CAFB0034C24E /* ViewController.m */; };
 		5E9BC1172043CAFB0034C24E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5E9BC1152043CAFB0034C24E /* Main.storyboard */; };
@@ -20,6 +21,8 @@
 
 /* Begin PBXFileReference section */
 		1B23A74A5934361305E933BD /* Pods-MFNetworkManagerDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MFNetworkManagerDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-MFNetworkManagerDemo/Pods-MFNetworkManagerDemo.release.xcconfig"; sourceTree = "<group>"; };
+		5E2990BE2048EF4E00E813CB /* AnimatedGIFImageSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedGIFImageSerialization.h; sourceTree = "<group>"; };
+		5E2990BF2048EF4E00E813CB /* AnimatedGIFImageSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimatedGIFImageSerialization.m; sourceTree = "<group>"; };
 		5E9BC10C2043CAFB0034C24E /* MFNetworkManagerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MFNetworkManagerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E9BC10F2043CAFB0034C24E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		5E9BC1102043CAFB0034C24E /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -99,6 +102,8 @@
 		5E9BC1252043CB2E0034C24E /* MFNetworkManager */ = {
 			isa = PBXGroup;
 			children = (
+				5E2990BE2048EF4E00E813CB /* AnimatedGIFImageSerialization.h */,
+				5E2990BF2048EF4E00E813CB /* AnimatedGIFImageSerialization.m */,
 				5E9BC1262043CB3F0034C24E /* MFNetworkManager.h */,
 				5E9BC1272043CB3F0034C24E /* MFNetworkManager.m */,
 			);
@@ -245,6 +250,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5E2990C02048EF4E00E813CB /* AnimatedGIFImageSerialization.m in Sources */,
 				5E9BC1142043CAFB0034C24E /* ViewController.m in Sources */,
 				5E9BC1312043F3530034C24E /* DisplayResultViewController.m in Sources */,
 				5E9BC1282043CB3F0034C24E /* MFNetworkManager.m in Sources */,

@@ -20,17 +20,28 @@ PODS:
     - RealReachability/Ping (= 1.1.9)
   - RealReachability/Connection (1.1.9)
   - RealReachability/Ping (1.1.9)
+  - YYCache (1.0.4)
+  - YYImage (1.0.4):
+    - YYImage/Core (= 1.0.4)
+  - YYImage/Core (1.0.4)
+  - YYWebImage (1.0.5):
+    - YYCache
+    - YYImage
 
 DEPENDENCIES:
   - AFNetworking
   - MFHUDManager
   - RealReachability
+  - YYWebImage
 
 SPEC CHECKSUMS:
   AFNetworking: 8ac6017b94ea105479f7776e5288e48ae9c59bb4
   MFHUDManager: e18b01bf032e8e4341b6e51376bfa04ea03142f5
   RealReachability: a8c483900986a0f3305733961effbfbb00637a02
+  YYCache: 8105b6638f5e849296c71f331ff83891a4942952
+  YYImage: 1e1b62a9997399593e4b9c4ecfbbabbf1d3f3b54
+  YYWebImage: 5f7f36aee2ae293f016d418c7d6ba05c4863e928
 
-PODFILE CHECKSUM: 241e364a0d115fc51dbd5f6a25d8544711413d62
+PODFILE CHECKSUM: 79de6987ab47f080acb73259e61944ab32c6d8dd
 
 COCOAPODS: 1.4.0
