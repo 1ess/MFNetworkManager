@@ -52,70 +52,93 @@
 
 - (void)load {
     if (self.type == 0) {
-        [MFNETWROK get:@"http://httpbin.org/get" params:@{
-                                                          @"params_key": @"params_value"
-                                                          } success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
-                                                              NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
-                                                              NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                                                              dispatch_async(dispatch_get_main_queue(), ^{
-                                                                  self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), str];
-                                                              });
-                                                          } failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
-                                                              dispatch_async(dispatch_get_main_queue(), ^{
-                                                                  self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
-                                                              });
-                                                          }];
+        [MFNETWROK get:@"http://httpbin.org/get"
+                params:@{
+                         @"params_key": @"params_value"
+                         }
+               success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
+                   NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
+                   NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), str];
+                   });
+               }
+               failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
+                   });
+               }];
     }else if (self.type == 1) {
         MFNETWROK.requestSerialization = MFJSONRequestSerialization;
-        [MFNETWROK post:@"http://httpbin.org/post" params:@{
-                                                            @"params_key": @"params_value"
-                                                            } success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
-                                                                NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
-                                                                NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                                                                dispatch_async(dispatch_get_main_queue(), ^{
-                                                                    self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), str];
-                                                                });
-                                                            } failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
-                                                                dispatch_async(dispatch_get_main_queue(), ^{
-                                                                    self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
-                                                                });
-                                                            }];
+        [MFNETWROK post:@"http://httpbin.org/post"
+                 params:@{
+                          @"params_key": @"params_value"
+                          }
+                success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
+                    NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
+                    NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), str];
+                    });
+                }
+                failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
+                    });
+                }];
 
     }else if (self.type == 2) {
-        [MFNETWROK upload:@"http://httpbin.org/post" params:@{
-                                                              @"params_key": @"params_value"
-                                                              } name:@"name" images:self.imageList imageScale:0.1 imageType:self.imageType progress:^(NSProgress *progress) {
-                                                                  NSLog(@"--%f",1.0 * progress.completedUnitCount / progress.totalUnitCount);
-                                                              } success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
-                                                                  NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
-                                                                  NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                                                                  NSString *base64 = [result[@"files"][@"name"] substringFromIndex:22];
-                                                                  NSData *base64Data = [[NSData alloc] initWithBase64EncodedString:base64 options:NSDataBase64DecodingIgnoreUnknownCharacters];
-                                                                  dispatch_async(dispatch_get_main_queue(), ^{
-                                                                      self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), str];
-                                                                      self.imageView.image = [YYImage imageWithData:base64Data];
-                                                                  });
-                                                              } failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
-                                                                  dispatch_async(dispatch_get_main_queue(), ^{
-                                                                      self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
-                                                                  });
-                                                              }];
+        [MFNETWROK upload:@"http://httpbin.org/post"
+                   params:@{
+                            @"params_key": @"params_value"
+                            }
+                     name:@"name"
+                   images:self.imageList
+               imageScale:0.1
+                imageType:self.imageType
+                 progress:^(NSProgress *progress) {
+                     //这个progress不准确！！！
+                     //这个progress并不是上传到服务器的进度，只是上传到TCP Send Buffer的进度，
+                     //而不是发送到TCP Receive Buffer，更不是发送到Server的进度
+                     //每次写入Send Buffer 就会更新progress，所以小图片可能瞬间100%。
+                     
+                     dispatch_async(dispatch_get_main_queue(), ^{
+                         self.progressView.progress = 1.0 * progress.completedUnitCount / progress.totalUnitCount;
+                         
+                     });
+                 } success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
+                     NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
+                     NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                     NSString *base64 = [result[@"files"][@"name"] substringFromIndex:22];
+                     NSData *base64Data = [[NSData alloc] initWithBase64EncodedString:base64 options:NSDataBase64DecodingIgnoreUnknownCharacters];
+                     dispatch_async(dispatch_get_main_queue(), ^{
+                         self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), str];
+                         self.imageView.image = [YYImage imageWithData:base64Data];
+                     });
+                 } failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
+                     dispatch_async(dispatch_get_main_queue(), ^{
+                         self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
+                     });
+                 }];
     }else {
-        [MFNETWROK download:@"https://cdn.gratisography.com/photos/440H.jpg" fileDir:@"Download" progress:^(NSProgress *progress) {
-            NSLog(@"--%f",1.0 * progress.completedUnitCount / progress.totalUnitCount);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.progressView.progress = 1.0 * progress.completedUnitCount / progress.totalUnitCount;
-            });
-        } success:^(NSString *path, NSInteger statusCode) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.imageView.image = [UIImage imageWithContentsOfFile:path];
-                self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), path];;
-            });
-        } failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
-            });
-        }];
+        [MFNETWROK download:@"https://cdn.gratisography.com/photos/440H.jpg"
+                    fileDir:@"Download"
+                   progress:^(NSProgress *progress) {
+                       dispatch_async(dispatch_get_main_queue(), ^{
+                           self.progressView.progress = 1.0 * progress.completedUnitCount / progress.totalUnitCount;
+                       });
+                   }
+                    success:^(NSString *path, NSInteger statusCode) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            self.imageView.image = [UIImage imageWithContentsOfFile:path];
+                            self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), path];;
+                        });
+                    }
+                    failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
+                        });
+                    }];
     }
 }
 
