@@ -39,10 +39,16 @@ pod 'MFNetworkManager'
 ```
 //get
 - (NSURLSessionDataTask *)get:(NSString *)url params:(id)params success:(MFNetworkSuccessHandle)success failure:(MFNetworkFailureHandle)failure;
+
 //post
 - (NSURLSessionDataTask *)post:(NSString *)url params:(id)params success:(MFNetworkSuccessHandle)success failure:(MFNetworkFailureHandle)failure;
-//upload
-- (NSURLSessionDataTask *)upload:(NSString *)url params:(id)params name:(NSString *)name images:(NSArray<UIImage *> *)images imageScale:(CGFloat)imageScale imageType:(NSString *)imageType progress:(MFProgress)progress success:(MFNetworkSuccessHandle)success failure:(MFNetworkFailureHandle)failure;
+
+//upload with images
+- (NSURLSessionDataTask *)upload:(NSString *)url params:(id)params name:(NSString *)name images:(NSArray<UIImage *> *)images imageScale:(CGFloat)imageScale imageType:(MFImageType)imageType progress:(MFProgress)progress success:(MFNetworkSuccessHandle)success failure:(MFNetworkFailureHandle)failure;
+
+//upload with datas
+- (NSURLSessionDataTask *)upload:(NSString *)url params:(id)params name:(NSString *)name imageDatas:(NSArray<NSData *> *)imageDatas progress:(MFProgress)progress success:(MFNetworkSuccessHandle)success failure:(MFNetworkFailureHandle)failure;
+
 //download
 - (NSURLSessionDownloadTask *)download:(NSString *)url fileDir:(NSString *)fileDir progress:(MFProgress)progress success:(void(^)(NSString *))success failure:(MFNetworkFailureHandle)failure;
 ```
@@ -58,40 +64,44 @@ pod 'MFNetworkManager'
 - 其他配置
 ```
 /**
-delegate  处理网络连接的两种情况
+ delegate
 */
 @property (nonatomic, weak) id<MFNetworkManagerDelegate> delegate;
 
 /**
-统一管理baseURL
+ baseURL
 */
 
 @property (nonatomic, strong) NSString *baseURL;
 
 /**
-公共headerField
-*/
-@property (nonatomic, strong) NSDictionary *commonHeaderFields;
-
-/**
-公共params
-*/
-@property (nonatomic, strong) NSDictionary *commonParams;
-
-/**
-超时时间 默认：30s 全局属性
+ timeoutInterval 30 default
 */
 @property (nonatomic, assign) NSTimeInterval requestTimeoutInterval;
 
 /**
-请求序列化类型  单一请求属性
+ sets the common parameter of the HTTP client. if value is `nil`, removes the existing value which associated to the field.
+ @param value - the value of the parameter
+ @param field - the parameter, or `nil`
 */
-@property (nonatomic, assign) MFRequestType requestType;
+- (void)setValue:(id)value forParameterField:(NSString *)field;
 
 /**
-响应序列化类型  单一请求属性
+ sets the common headerField of the HTTP client. if value is `nil`, removes the existing value which associated to the field.
+ @param value - the value of the HTTP header
+ @param field - the HTTP header, or `nil`
 */
-@property (nonatomic, assign) MFResponseType responseType;
+- (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field;
+
+/**
+ request serialization    MFHTTPRequestSerialization default
+*/
+@property (nonatomic, assign) MFRequestSerialization requestSerialization;
+
+/**
+ response serialization    MFJSONResponseSerialization default
+*/
+@property (nonatomic, assign) MFResponseSerialization responseSerialization;
 
 ```
 
