@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'MFNetworkManager'
-  s.version          = '0.2.0'
+  s.version          = '0.2.1'
   s.summary          = 'MFNetworkManager is a high level request util based on AFNetworking..'
 
 # This description is used to generate tags and improve search results.

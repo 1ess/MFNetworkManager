@@ -18,7 +18,6 @@
 @property (nonatomic, strong) AFJSONRequestSerializer *jsonRequestSerializer;
 
 @property (nonatomic, strong) NSMutableArray *allSessionTask;
-@property (nonatomic, strong) NSMutableDictionary *mutableHTTPRequestHeaders;
 @property (nonatomic, strong) NSMutableDictionary *mutableParameters;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 @end
@@ -32,6 +31,7 @@
         manager = [[MFNetworkManager alloc] init];
         manager.sessionManager = [AFHTTPSessionManager manager];
         manager.sessionManager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/html", @"text/json", @"text/plain", @"text/javascript", @"text/xml", @"image/*", nil];
+        manager.sessionManager.requestSerializer.timeoutInterval = 30;
     });
     return manager;
 }
@@ -40,11 +40,13 @@
     self = [super init];
     if (self) {
         _allSessionTask = @[].mutableCopy;
-        _mutableHTTPRequestHeaders = [NSMutableDictionary dictionary];
-        _mutableParameters = [NSMutableDictionary dictionary];
-        _timeoutInterval = 30;
+        _mutableParameters = @{}.mutableCopy;
     }
     return self;
+}
+
+- (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval {
+    self.sessionManager.requestSerializer.timeoutInterval = requestTimeoutInterval;
 }
 
 - (void)setValue:(id)value forParameterField:(NSString *)field {
@@ -52,17 +54,7 @@
 }
 
 - (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field {
-    [self.mutableHTTPRequestHeaders setValue:value forKey:field];
-}
-
-- (void)setHTTPRequestHeaders:(NSDictionary<NSString *, NSString *> *)dictionary {
-    NSArray *allKeys = [dictionary allKeys];
-    if (allKeys.count) {
-        for (NSString *headerField in allKeys) {
-            NSString *value = dictionary[headerField];
-            [self.sessionManager.requestSerializer setValue:value forHTTPHeaderField:headerField];
-        }
-    }
+    [self.sessionManager.requestSerializer setValue:value forHTTPHeaderField:field];
 }
 
 - (void)openNetworkActivityIndicator:(BOOL)open {
@@ -93,9 +85,7 @@
 }
 
 - (NSString *)dealWithURL:(NSString *)url{
-    [self setHTTPRequestHeaders:self.mutableHTTPRequestHeaders];
     NSString *urlString = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
-    self.sessionManager.requestSerializer.timeoutInterval = self.timeoutInterval;
     return urlString;
 }
 
@@ -117,10 +107,10 @@
                       success:(MFNetworkSuccessHandle)success
                       failure:(MFNetworkFailureHandle)failure {
     [self openNetworkActivityIndicator:YES];
-    NSString *urlString = [self dealWithURL:url];
+    NSString *URL = [self dealWithURL:url];
     id parameter = [self dealWithParams:params];
     
-    NSURLSessionDataTask *dataTask = [self.sessionManager GET:urlString parameters:parameter progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *dataTask = [self.sessionManager GET:URL parameters:parameter progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
         NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
@@ -145,9 +135,9 @@
                        success:(MFNetworkSuccessHandle)success
                        failure:(MFNetworkFailureHandle)failure {
     [self openNetworkActivityIndicator:YES];
-    NSString *urlString = [self dealWithURL:url];
+    NSString *URL = [self dealWithURL:url];
     id parameter = [self dealWithParams:params];
-    NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlString parameters:parameter progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *dataTask = [self.sessionManager POST:URL parameters:parameter progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
         NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
@@ -177,9 +167,9 @@
                      success:(MFNetworkSuccessHandle)success
                      failure:(MFNetworkFailureHandle)failure {
     [self openNetworkActivityIndicator:YES];
-    NSString *urlString = [self dealWithURL:url];
+    NSString *URL = [self dealWithURL:url];
     id parameter = [self dealWithParams:params];
-    NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlString parameters:parameter constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+    NSURLSessionDataTask *dataTask = [self.sessionManager POST:URL parameters:parameter constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         
         for (NSUInteger i = 0; i < images.count; i++) {
             NSData *imageData = nil;
@@ -251,9 +241,9 @@
                          success:(MFNetworkSuccessHandle)success
                          failure:(MFNetworkFailureHandle)failure {
     [self openNetworkActivityIndicator:YES];
-    NSString *urlString = [self dealWithURL:url];
+    NSString *URL = [self dealWithURL:url];
     id parameter = [self dealWithParams:params];
-    NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlString parameters:parameter constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+    NSURLSessionDataTask *dataTask = [self.sessionManager POST:URL parameters:parameter constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         for (NSUInteger i = 0; i < imageDatas.count; i++) {
             NSData *imageData = imageDatas[i];
             MFImageType imageType = [self typeForImageData:imageData];
@@ -335,10 +325,9 @@
                                success:(MFDownloadSuccessHandle)success
                                failure:(MFNetworkFailureHandle)failure {
     [self openNetworkActivityIndicator:YES];
-    [self setHTTPRequestHeaders:self.mutableHTTPRequestHeaders];
-    url = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    NSString *urlString = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    
+    NSString *URL = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:URL]];
     __block NSURLSessionDownloadTask *downloadTask = [self.sessionManager downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (progress) {
@@ -385,10 +374,6 @@
     if (self.responseSerialization) {
         self.responseSerialization = MFJSONResponseSerialization;
     }
-}
-
-- (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval {
-    self.timeoutInterval = requestTimeoutInterval;
 }
 
 - (void)setRequestSerialization:(MFRequestSerialization)requestSerialization {
