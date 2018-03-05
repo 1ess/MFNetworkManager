@@ -6,6 +6,8 @@
 
 - 支持iOS 8及以上
 
+<img src="hhttps://github.com/GodzzZZZ/MFNetworkManager/blob/master/image/7B0E8C7E53144FAC82ED0D942C1B8317.gif" width="25%"/><img src="https://github.com/GodzzZZZ/MFNetworkManager/blob/master/image/573E49F949C7CF1CA5BE9A8E01380939.gif" width="25%"/><img src="https://github.com/GodzzZZZ/MFNetworkManager/blob/master/image/BB72AA3A51C36966BA84262DA4CDB76F.gif" width="25%"/><img src="https://github.com/GodzzZZZ/MFNetworkManager/blob/master/image/0EDF299300E15A29993170CD579429D2.gif" width="25%"/>
+
 ## 集成方式
 - cocoapod
 
