@@ -92,13 +92,24 @@
     }
 }
 
-- (NSString *)dealWithURL:(NSString *)url params:(id)params {
+- (NSString *)dealWithURL:(NSString *)url{
     [self setHTTPRequestHeaders:self.mutableHTTPRequestHeaders];
-    [self.mutableParameters addEntriesFromDictionary:params];
-    url = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSString *urlString = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:self.baseURL]].absoluteString;
     self.sessionManager.requestSerializer.timeoutInterval = self.timeoutInterval;
     return urlString;
+}
+
+- (id)dealWithParams:(id)params {
+    id parameter = nil;
+    NSMutableDictionary *paramsDic = [NSMutableDictionary dictionary];
+    if ([params isKindOfClass:NSDictionary.class]) {
+        [paramsDic addEntriesFromDictionary:self.mutableParameters];
+        [paramsDic addEntriesFromDictionary:params];
+        parameter = paramsDic;
+    }else {
+        parameter = params;
+    }
+    return parameter;
 }
 
 - (NSURLSessionDataTask *)get:(NSString *)url
@@ -106,8 +117,10 @@
                       success:(MFNetworkSuccessHandle)success
                       failure:(MFNetworkFailureHandle)failure {
     [self openNetworkActivityIndicator:YES];
-    NSString *urlString = [self dealWithURL:url params:params];
-    NSURLSessionDataTask *dataTask = [self.sessionManager GET:urlString parameters:self.mutableParameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSString *urlString = [self dealWithURL:url];
+    id parameter = [self dealWithParams:params];
+    
+    NSURLSessionDataTask *dataTask = [self.sessionManager GET:urlString parameters:parameter progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
         NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
@@ -132,8 +145,9 @@
                        success:(MFNetworkSuccessHandle)success
                        failure:(MFNetworkFailureHandle)failure {
     [self openNetworkActivityIndicator:YES];
-    NSString *urlString = [self dealWithURL:url params:params];
-    NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlString parameters:self.mutableParameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSString *urlString = [self dealWithURL:url];
+    id parameter = [self dealWithParams:params];
+    NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlString parameters:parameter progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
         NSInteger statusCode = [self getStatusCodeWithTask:task];
         [self openNetworkActivityIndicator:NO];
@@ -163,8 +177,9 @@
                      success:(MFNetworkSuccessHandle)success
                      failure:(MFNetworkFailureHandle)failure {
     [self openNetworkActivityIndicator:YES];
-    NSString *urlString = [self dealWithURL:url params:params];
-    NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlString parameters:self.mutableParameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+    NSString *urlString = [self dealWithURL:url];
+    id parameter = [self dealWithParams:params];
+    NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlString parameters:parameter constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         
         for (NSUInteger i = 0; i < images.count; i++) {
             NSData *imageData = nil;
@@ -203,7 +218,9 @@
         }
     } progress:^(NSProgress * _Nonnull uploadProgress) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            progress(uploadProgress);
+            if (progress) {
+                progress(uploadProgress);
+            }
         });
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
@@ -234,8 +251,9 @@
                          success:(MFNetworkSuccessHandle)success
                          failure:(MFNetworkFailureHandle)failure {
     [self openNetworkActivityIndicator:YES];
-    NSString *urlString = [self dealWithURL:url params:params];
-    NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlString parameters:self.mutableParameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+    NSString *urlString = [self dealWithURL:url];
+    id parameter = [self dealWithParams:params];
+    NSURLSessionDataTask *dataTask = [self.sessionManager POST:urlString parameters:parameter constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         for (NSUInteger i = 0; i < imageDatas.count; i++) {
             NSData *imageData = imageDatas[i];
             MFImageType imageType = [self typeForImageData:imageData];
@@ -269,7 +287,9 @@
         }
     } progress:^(NSProgress * _Nonnull uploadProgress) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            progress(uploadProgress);
+            if (progress) {
+                progress(uploadProgress);
+            }
         });
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.allSessionTask removeObject:task];
@@ -321,7 +341,9 @@
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     __block NSURLSessionDownloadTask *downloadTask = [self.sessionManager downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            progress(downloadProgress);
+            if (progress) {
+                progress(downloadProgress);
+            }
         });
     } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
         NSString *downloadDir = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:fileDir ? fileDir : @"Download"];

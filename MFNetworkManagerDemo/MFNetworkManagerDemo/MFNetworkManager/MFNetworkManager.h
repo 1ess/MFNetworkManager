@@ -73,12 +73,12 @@ typedef NS_ENUM(NSInteger, MFImageType) {
 
 
 /**
- request serialization    MFHTTPRequestSerialization default
+ request serialization
  */
 @property (nonatomic, assign) MFRequestSerialization requestSerialization;
 
 /**
- response serialization    MFJSONResponseSerialization default
+ response serialization
 */
 @property (nonatomic, assign) MFResponseSerialization responseSerialization;
 
