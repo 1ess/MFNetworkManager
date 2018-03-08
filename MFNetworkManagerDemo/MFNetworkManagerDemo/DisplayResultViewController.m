@@ -88,6 +88,41 @@
                 }];
 
     }else if (self.type == 2) {
+        MFNETWROK.requestSerialization = MFJSONRequestSerialization;
+        [MFNETWROK put:@"http://httpbin.org/put"
+                params:@{
+                         @"params_key": @"params_value"
+                         }
+               success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
+                   NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
+                   NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), str];
+                   });
+               }
+               failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
+                   });
+               }];
+    }else if (self.type == 3) {
+        [MFNETWROK delete:@"http://httpbin.org/delete"
+                   params:@{
+                            @"params_key": @"params_value"
+                            }
+                  success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
+                      NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
+                      NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                      dispatch_async(dispatch_get_main_queue(), ^{
+                          self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), str];
+                      });
+                  }
+                  failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
+                      dispatch_async(dispatch_get_main_queue(), ^{
+                          self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
+                      });
+                  }];
+    }else if (self.type == 4) {
         [MFNETWROK upload:@"http://httpbin.org/post"
                    params:@{
                             @"params_key": @"params_value"

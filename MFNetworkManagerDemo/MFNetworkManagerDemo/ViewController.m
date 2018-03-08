@@ -27,6 +27,8 @@ UINavigationControllerDelegate
         _list = @[
                   @"get",
                   @"post",
+                  @"put",
+                  @"delete",
                   @"upload",
                   @"download"
                   ];
@@ -75,7 +77,7 @@ UINavigationControllerDelegate
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     DisplayResultViewController *display = [[DisplayResultViewController alloc] init];
     display.type = indexPath.row;
-    if (indexPath.row == 2) {
+    if (indexPath.row == 4) {
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self;
         picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
