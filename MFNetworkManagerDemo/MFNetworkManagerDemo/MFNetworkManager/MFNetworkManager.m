@@ -157,6 +157,60 @@
     return dataTask;
 }
 
+- (NSURLSessionDataTask *)put:(NSString *)url
+                       params:(id)params
+                      success:(MFNetworkSuccessHandle)success
+                      failure:(MFNetworkFailureHandle)failure {
+    [self openNetworkActivityIndicator:YES];
+    NSString *URL = [self dealWithURL:url];
+    id parameter = [self dealWithParams:params];
+    NSURLSessionDataTask *dataTask = [self.sessionManager PUT:URL parameters:parameter success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
+        [self openNetworkActivityIndicator:NO];
+        if (success) {
+            success(responseObject, statusCode, task);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
+        [self openNetworkActivityIndicator:NO];
+        if (failure) {
+            failure(error, statusCode, task);
+        }
+    }];
+    dataTask ? [self.allSessionTask addObject:dataTask] : nil;
+    [self resetSerialization];
+    return dataTask;
+}
+
+- (NSURLSessionDataTask *)delete:(NSString *)url
+                          params:(id)params
+                         success:(MFNetworkSuccessHandle)success
+                         failure:(MFNetworkFailureHandle)failure {
+    [self openNetworkActivityIndicator:YES];
+    NSString *URL = [self dealWithURL:url];
+    id parameter = [self dealWithParams:params];
+    NSURLSessionDataTask *dataTask = [self.sessionManager DELETE:URL parameters:parameter success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
+        [self openNetworkActivityIndicator:NO];
+        if (success) {
+            success(responseObject, statusCode, task);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
+        [self openNetworkActivityIndicator:NO];
+        if (failure) {
+            failure(error, statusCode, task);
+        }
+    }];
+    dataTask ? [self.allSessionTask addObject:dataTask] : nil;
+    [self resetSerialization];
+    return dataTask;
+}
+
 - (NSURLSessionDataTask *)upload:(NSString *)url
                       params:(id)params
                         name:(NSString *)name

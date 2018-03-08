@@ -119,6 +119,16 @@ typedef NS_ENUM(NSInteger, MFImageType) {
                         params:(id)params
                        success:(MFNetworkSuccessHandle)success
                        failure:(MFNetworkFailureHandle)failure;
+
+- (NSURLSessionDataTask *)put:(NSString *)url
+                       params:(id)params
+                      success:(MFNetworkSuccessHandle)success
+                      failure:(MFNetworkFailureHandle)failure;
+
+- (NSURLSessionDataTask *)delete:(NSString *)url
+                          params:(id)params
+                         success:(MFNetworkSuccessHandle)success
+                         failure:(MFNetworkFailureHandle)failure;
 //upload with images
 - (NSURLSessionDataTask *)upload:(NSString *)url
                           params:(id)params
