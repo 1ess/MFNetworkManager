@@ -373,6 +373,55 @@
     return MFImageTypeUNKNOWN;
 }
 
+- (NSURLSessionDataTask *)upload:(NSString *)url
+                          params:(id)params
+                            name:(NSString *)name
+                        fileName:(NSString *)fileName
+                        videoURL:(NSString *)videoURL
+                        progress:(MFProgress)progress
+                         success:(MFNetworkSuccessHandle)success
+                         failure:(MFNetworkFailureHandle)failure {
+    [self openNetworkActivityIndicator:YES];
+    NSString *URL = [self dealWithURL:url];
+    id parameter = [self dealWithParams:params];
+    NSURLSessionDataTask *dataTask = [self.sessionManager POST:URL parameters:parameter constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+        NSString *extension = [videoURL lastPathComponent];
+        NSString *mimeType = [NSString stringWithFormat:@"video/%@", extension];
+        if (fileName && fileName.length > 0) {
+            [formData appendPartWithFileURL:[NSURL fileURLWithPath:videoURL] name:name fileName:[NSString stringWithFormat:@"%@.%@", fileName, extension] mimeType:mimeType error:nil];
+        }else {
+            NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+            formatter.dateFormat = @"yyyyMMddHHmmss";
+            NSString *str = [formatter stringFromDate:[NSDate date]];
+            NSString *customName = [NSString stringWithFormat:@"%@.%@", str, extension];
+            [formData appendPartWithFileURL:[NSURL fileURLWithPath:videoURL] name:name fileName:customName mimeType:mimeType error:nil];
+        }
+    } progress:^(NSProgress * _Nonnull uploadProgress) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (progress) {
+                progress(uploadProgress);
+            }
+        });
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
+        [self openNetworkActivityIndicator:NO];
+        if (success) {
+            success(responseObject, statusCode, task);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [self.allSessionTask removeObject:task];
+        NSInteger statusCode = [self getStatusCodeWithTask:task];
+        [self openNetworkActivityIndicator:NO];
+        if (failure) {
+            failure(error, statusCode, task);
+        }
+    }];
+    dataTask ? [self.allSessionTask addObject:dataTask] : nil;
+    [self resetSerialization];
+    return dataTask;
+}
+
 - (NSURLSessionDownloadTask *)download:(NSString *)url
                                fileDir:(NSString *)fileDir
                               progress:(MFProgress)progress

@@ -12,4 +12,5 @@
 @property (nonatomic, assign) NSInteger type;
 @property (nonatomic, strong) NSMutableArray *imageList;
 @property (nonatomic, assign) MFImageType imageType;
+@property (nonatomic, strong) NSString *videoURL;
 @end

@@ -29,7 +29,8 @@ UINavigationControllerDelegate
                   @"post",
                   @"put",
                   @"delete",
-                  @"upload",
+                  @"upload image",
+                  @"upload video",
                   @"download"
                   ];
     }
@@ -75,8 +76,7 @@ UINavigationControllerDelegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    DisplayResultViewController *display = [[DisplayResultViewController alloc] init];
-    display.type = indexPath.row;
+    
     if (indexPath.row == 4) {
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self;
@@ -85,7 +85,17 @@ UINavigationControllerDelegate
                               (NSString *)kUTTypeImage
                               ];
         [self presentViewController:picker animated:YES completion:nil];
+    }else if (indexPath.row == 5) {
+        UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+        picker.delegate = self;
+        picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        picker.mediaTypes = @[
+                              (NSString *)kUTTypeMovie
+                              ];
+        [self presentViewController:picker animated:YES completion:nil];
     }else {
+        DisplayResultViewController *display = [[DisplayResultViewController alloc] init];
+        display.type = indexPath.row;
         [self.navigationController pushViewController:display animated:YES];
     }
 }
@@ -95,27 +105,41 @@ UINavigationControllerDelegate
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
-    DisplayResultViewController *display = [[DisplayResultViewController alloc] init];
-    display.type = 2;
-    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-    if (@available(iOS 11.0, *)) {
-        NSString *url = [info objectForKey:UIImagePickerControllerImageURL];
-        if ([url.pathExtension isEqualToString:@"gif"]) {
-            display.imageType = MFImageTypeGIF;
-        }else if ([url.pathExtension isEqualToString:@"jpeg"]) {
-            display.imageType = MFImageTypeJPEG;
-        }else if ([url.pathExtension isEqualToString:@"png"]) {
-            display.imageType = MFImageTypePNG;
-        }else if ([url.pathExtension isEqualToString:@"tiff"]) {
-            display.imageType = MFImageTypeTIFF;
-        }else {
-            display.imageType = MFImageTypeUNKNOWN;
+    if ([picker.mediaTypes containsObject:(NSString *)kUTTypeImage]) {
+        DisplayResultViewController *display = [[DisplayResultViewController alloc] init];
+        display.type = 4;
+        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        if (@available(iOS 11.0, *)) {
+            NSString *url = [info objectForKey:UIImagePickerControllerImageURL];
+            if ([url.pathExtension isEqualToString:@"gif"]) {
+                display.imageType = MFImageTypeGIF;
+            }else if ([url.pathExtension isEqualToString:@"jpeg"]) {
+                display.imageType = MFImageTypeJPEG;
+            }else if ([url.pathExtension isEqualToString:@"png"]) {
+                display.imageType = MFImageTypePNG;
+            }else if ([url.pathExtension isEqualToString:@"tiff"]) {
+                display.imageType = MFImageTypeTIFF;
+            }else {
+                display.imageType = MFImageTypeUNKNOWN;
+            }
         }
+        display.imageList = [@[image] mutableCopy];
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self.navigationController pushViewController:display animated:YES];
+        }];
+    }else {
+        DisplayResultViewController *display = [[DisplayResultViewController alloc] init];
+        display.type = 5;
+        NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
+        NSLog(@"---%@",videoURL);
+//        NSData *videoData = [NSData dataWithContentsOfURL:videoURL];
+//        NSLog(@"***%@",videoData);
+        display.videoURL = videoURL.absoluteString;
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self.navigationController pushViewController:display animated:YES];
+        }];
+    
     }
-    display.imageList = [@[image] mutableCopy];
-    [self dismissViewControllerAnimated:YES completion:^{
-        [self.navigationController pushViewController:display animated:YES];
-    }];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {

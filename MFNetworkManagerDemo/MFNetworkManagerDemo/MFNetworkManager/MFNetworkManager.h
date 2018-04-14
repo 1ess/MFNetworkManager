@@ -139,11 +139,21 @@ typedef NS_ENUM(NSInteger, MFImageType) {
                         progress:(MFProgress)progress
                          success:(MFNetworkSuccessHandle)success
                          failure:(MFNetworkFailureHandle)failure;
-//upload with datas
+//upload with image datas
 - (NSURLSessionDataTask *)upload:(NSString *)url
                           params:(id)params
                             name:(NSString *)name
                       imageDatas:(NSArray<NSData *> *)imageDatas
+                        progress:(MFProgress)progress
+                         success:(MFNetworkSuccessHandle)success
+                         failure:(MFNetworkFailureHandle)failure;
+
+//upload with video url
+- (NSURLSessionDataTask *)upload:(NSString *)url
+                          params:(id)params
+                            name:(NSString *)name
+                        fileName:(NSString *)fileName
+                        videoURL:(NSString *)videoURL
                         progress:(MFProgress)progress
                          success:(MFNetworkSuccessHandle)success
                          failure:(MFNetworkFailureHandle)failure;

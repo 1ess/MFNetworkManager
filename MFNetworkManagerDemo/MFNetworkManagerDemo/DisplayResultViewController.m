@@ -9,6 +9,7 @@
 #import "DisplayResultViewController.h"
 #import "MFNetworkManager.h"
 #import <YYImage.h>
+#import <AVFoundation/AVFoundation.h>
 @interface DisplayResultViewController ()
 
 @property (nonatomic, strong) UITextView *textView;
@@ -22,7 +23,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-    
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 100, self.view.bounds.size.width - 20, 150)];
     self.textView.backgroundColor = [UIColor colorWithRed:231/255.0 green:76/255.0 blue:60/255.0 alpha:1];
     self.textView.textColor = [UIColor whiteColor];
@@ -155,6 +155,32 @@
                          self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
                      });
                  }];
+    }else if (self.type == 5) {
+        [MFNETWROK upload:@"http://httpbin.org/post"
+                   params:@{
+                            @"params_key": @"params_value"
+                            }
+                     name:@"name"
+                 fileName:nil
+                 videoURL:self.videoURL
+                 progress:^(NSProgress *progress) {
+                     dispatch_async(dispatch_get_main_queue(), ^{
+                         self.progressView.progress = 1.0 * progress.completedUnitCount / progress.totalUnitCount;
+                         
+                     });
+                 }
+                  success:^(id result, NSInteger statusCode, NSURLSessionDataTask *task) {
+                      UIImage *image = [self getVideoPreViewImageWithPath:[NSURL fileURLWithPath:self.videoURL]];
+                      dispatch_async(dispatch_get_main_queue(), ^{
+                          self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), result];
+                          self.imageView.image = image;
+                      });
+                  }
+                  failure:^(NSError *error, NSInteger statusCode, NSURLSessionDataTask *task) {
+                      dispatch_async(dispatch_get_main_queue(), ^{
+                          self.textView.text = [NSString stringWithFormat:@"%@\n%@", @(statusCode), error.localizedDescription];
+                      });
+                  }];
     }else {
         [MFNETWROK download:@"https://cdn.gratisography.com/photos/440H.jpg"
                     fileDir:@"Download"
@@ -177,5 +203,16 @@
     }
 }
 
+- (UIImage *)getVideoPreViewImageWithPath:(NSURL *)videoPath {
+    AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoPath options:nil];
+    AVAssetImageGenerator *gen = [[AVAssetImageGenerator alloc] initWithAsset:asset];
+    gen.appliesPreferredTrackTransform = YES;
+    CMTime time = CMTimeMakeWithSeconds(0.0, 600);
+    NSError *error  = nil;
+    CMTime actualTime;
+    CGImageRef image = [gen copyCGImageAtTime:time actualTime:&actualTime error:&error];
+    UIImage *img = [[UIImage alloc] initWithCGImage:image];
+    return img;
+}
 
 @end
