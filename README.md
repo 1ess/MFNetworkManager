@@ -2,7 +2,11 @@
 
 # MFNetworkManager
 
-[![DUB](https://img.shields.io/dub/l/vibe-d.svg)]()
+![DUB](https://img.shields.io/dub/l/vibe-d.svg)
+![Total-downloads](https://img.shields.io/cocoapods/dt/MFNetworkManager.svg)
+![Version](https://img.shields.io/cocoapods/v/MFNetworkManager.svg?style=flat)
+![Platform](https://img.shields.io/cocoapods/p/MFNetworkManager.svg?style=flat)
+![Language](https://img.shields.io/badge/language-objectivec-blue.svg)
 
 - 支持iOS 8及以上
 
